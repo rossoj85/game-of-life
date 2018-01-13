@@ -1,5 +1,4 @@
-// testing push
-//testing again
+
 
 var gameOfLife = {
   
@@ -29,6 +28,7 @@ var gameOfLife = {
     
     // once html elements are added to the page, attach events to them
     this.setupBoardEvents();
+    
   },
 
   forEachCell: function (iteratorFunc) {
@@ -38,6 +38,11 @@ var gameOfLife = {
       and pass into func, the cell and the cell's x & y
       coordinates. For example: iteratorFunc(cell, x, y)
     */
+    for(var x=0;x<this.height;x++){
+      for(var y=0;y<this.width;y++)
+      iteratorFunc(x,y)
+    }
+
   },
   
   setupBoardEvents: function() {
@@ -69,9 +74,41 @@ var gameOfLife = {
       }
       
     };
-    
-    var cell00 = document.getElementById('0-0');
-    cell00.addEventListener('click', onCellClick);
+    //*create vars
+    var addListeners = function (x,y){
+      // console.log(`${x}-${y}`)
+      console.log(document.getElementById(`${x}-${y}`))
+      document.getElementById(`${x}-${y}`).addEventListener('click',onCellClick)
+    }
+    var clearAllCells = function(x,y){
+     let element= document.getElementById(`${x}-${y}`)
+      element.className='dead'
+      element.dataset.status='dead'
+      console.log('FUCKING CLEARED')
+    }
+    var randomize=function(x,y){
+      let num = Math.floor(Math.random()*2)
+      console.log(num)
+      // console.log(`${x}-${y}`)
+      let element =  document.getElementById(`${x}-${y}`)
+      if(num){
+        element.className='alive'
+        element.dataset.status='alive'
+      }
+    } 
+
+    // var cell00 = document.getElementById('0-0');
+    // cell00.addEventListener('click', onCellClick);
+
+    // this.forEachCell((cell,x,y)=>console.log(cell,x,y))
+    this.forEachCell(addListeners)
+
+    //add functionality to buttons 
+    document.getElementById('clear_btn').addEventListener('click',()=>this.forEachCell(clearAllCells))
+    document.getElementById('reset_btn').addEventListener('click',()=>{
+      this.forEachCell(clearAllCells)
+      this.forEachCell(randomize)
+    })
   },
 
   step: function () {
