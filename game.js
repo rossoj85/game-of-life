@@ -1,7 +1,8 @@
 
 
 var gameOfLife = {
-  
+  setAlive: [],
+  setDead: [],
   width: 12, 
   height: 12, // width and height dimensions of the board
   stepInterval: null, // should be used to hold reference to an interval that is "playing" the game
@@ -38,11 +39,13 @@ var gameOfLife = {
       and pass into func, the cell and the cell's x & y
       coordinates. For example: iteratorFunc(cell, x, y)
     */
+    
     for(var x=0;x<this.height;x++){
       for(var y=0;y<this.width;y++)
+
       iteratorFunc(x,y)
     }
-
+    
   },
   
   setupBoardEvents: function() {
@@ -77,8 +80,9 @@ var gameOfLife = {
     //*create vars
     var addListeners = function (x,y){
       // console.log(`${x}-${y}`)
-      console.log(document.getElementById(`${x}-${y}`))
+      // console.log(document.getElementById(`${x}-${y}`))
       document.getElementById(`${x}-${y}`).addEventListener('click',onCellClick)
+      // console.log('THIS ===',this)
     }
     var clearAllCells = function(x,y){
      let element= document.getElementById(`${x}-${y}`)
@@ -100,18 +104,97 @@ var gameOfLife = {
     // var cell00 = document.getElementById('0-0');
     // cell00.addEventListener('click', onCellClick);
 
-    // this.forEachCell((cell,x,y)=>console.log(cell,x,y))
-    this.forEachCell(addListeners)
+    //BINDINGS
 
+    this.forEachCell(addListeners)
+    this.step=this.step.bind(this)
+    this.getNeighborhood=this.getNeighborhood.bind(this)
     //add functionality to buttons 
     document.getElementById('clear_btn').addEventListener('click',()=>this.forEachCell(clearAllCells))
     document.getElementById('reset_btn').addEventListener('click',()=>{
       this.forEachCell(clearAllCells)
       this.forEachCell(randomize)
     })
+    document.getElementById('step_btn').addEventListener('click',()=>{
+      this.forEachCell(this.step)
+      this.applyStep()
+      
+    })
+
+
   },
 
-  step: function () {
+  
+  getNeighborhood: function(element,x,y){
+    // console.log('NEIGHTBORS THIS', this)
+    // console.log(x,y)
+    let neighborhood=[]
+    
+      // console.log(element)
+      for(var col = x-1;col<=x+1;col++){
+        for(var row=y-1;row<=y+1;row++){
+          // console.log(col, row)
+          if(document.getElementById(`${col}-${row}`)){
+              let neighbor=document.getElementById(`${col}-${row}`)
+              if(neighbor!==element)neighborhood.push(neighbor)
+          }
+        }
+      }
+       
+        console.log(neighborhood)
+        return neighborhood
+    //   }
+    // }
+    // if (element.className==='alive') console.log('[]--->',element,aliveNighbors)
+  },
+  getLiveNeighbors(neighborhood){
+    console.log('InsideNextStep',this)
+    let liveNeighbors=neighborhood.filter(neighbor=>neighbor.dataset.status==='alive')
+    
+    if(liveNeighbors.length>0) console.log('Live Neighbors---',liveNeighbors)
+    return liveNeighbors
+  },
+  setUpNextStep(element,liveNeighbors){
+    console.log(element.dataset.status==='alive',liveNeighbors.length)
+    console.log(element.dataset.status==='alive'&& (liveNeighbors.length===2||liveNeighbors.length===3))
+    if(element.dataset.status==='alive'&& (liveNeighbors.length===2||liveNeighbors.length===3)){
+      this.setAlive.push(element)
+    }
+    if(element.dataset.status==='alive'&&liveNeighbors.length<2){
+      this.setDead.push(element)
+    }
+    if(element.dataset.status==='alive'&& liveNeighbors.length>3){
+      this.setDead.push(element)
+    }
+    if(element.dataset.status==='dead'&&liveNeighbors.length===3){
+      this.setAlive.push(element)
+    }
+    
+  },
+  applyStep(){
+    this.setAlive.forEach(element=>{
+      element.dataset.status='alive';
+      element.className='alive';
+    })
+    this.setDead.forEach(element=>{
+      element.dataset.status='dead';
+      element.className='dead';
+    })
+    this.setDead=[]
+    this.setAlive=[]
+  },
+  step: function (x,y) {
+   
+    let element= document.getElementById(`${x}-${y}`)
+    let neighborhood=this.getNeighborhood(element,x,y)
+    let liveNeighbors = this.getLiveNeighbors(neighborhood)
+    this.setUpNextStep(element,liveNeighbors)
+    console.log('setAlive',this.setAlive)
+    console.log('setDead',this.setDead)
+    
+    return [this.setAlive, this.setDead]
+
+    // console.log(neighborhood)
     // Here is where you want to loop through all the cells
     // on the board and determine, based on it's neighbors,
     // whether the cell should be dead or alive in the next
@@ -120,6 +203,49 @@ var gameOfLife = {
     // You need to:
     // 1. Count alive neighbors for all cells
     // 2. Set the next state of all cells based on their alive neighbors
+ 
+    // let element =  document.getElementById(`${x}-${y}`)
+    // let aliveNighbors=[]
+    
+    // for(var col = x-1;col<=x+1;col++){
+    //   for(var row=y-1;row<=y+1;row++){
+
+    //       if(document.getElementById(`${col}-${row}`)){
+    //       let neighbor= document.getElementById(`${col}-${row}`)
+           
+    //       console.log('neighbor-----',neighbor)
+    //       console.log('status',neighbor.dataset.status)
+    //       if(neighbor!==element&&neighbor.dataset.status==='alive') aliveNighbors.push(neighbor)
+          
+    //     }
+    //   }
+    // }
+    // if (element.className==='alive') console.log('[]--->',element,aliveNighbors)
+  
+    // if(element.dataset.status==='alive'&&aliveNighbors.length!==2||3) {
+    //   // element.className='dead'
+    //   // element.dataset.status='dead'
+    //   this.setDead.push(element)
+    // }
+    // if(element.dataset.status==='dead'&&aliveNighbors.length===3){
+    //   // element.className='alive'
+    //   // element.dataset.status='alive'
+    //   this.setAlive.push(element)
+    // }
+    // console.log('--------------------------')
+    // console.log('SET ALIVE', this.setAlive)
+    // console.log('SET DEAD', this.setDead)
+    // this.setDead.forEach(element=>{
+    //   element.className='dead'
+    //   element.dataset.status='dead'
+    // })
+    // this.setAlive.forEach(element=>{
+    //   element.className='alive'
+    //   element.dataset.status='alive'
+    // })
+    // this.setDead=[]
+    // this.setAlive=[]
+
   },
 
   enableAutoPlay: function () {
