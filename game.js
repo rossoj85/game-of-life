@@ -118,9 +118,8 @@ var gameOfLife = {
     document.getElementById('step_btn').addEventListener('click',()=>{
       this.forEachCell(this.step)
       this.applyStep()
-      
     })
-
+    document.getElementById('play_btn').addEventListener('click',()=>this.enableAutoPlay())
 
   },
 
@@ -143,9 +142,7 @@ var gameOfLife = {
        
         console.log(neighborhood)
         return neighborhood
-    //   }
-    // }
-    // if (element.className==='alive') console.log('[]--->',element,aliveNighbors)
+    
   },
   getLiveNeighbors(neighborhood){
     console.log('InsideNextStep',this)
@@ -155,8 +152,8 @@ var gameOfLife = {
     return liveNeighbors
   },
   setUpNextStep(element,liveNeighbors){
-    console.log(element.dataset.status==='alive',liveNeighbors.length)
-    console.log(element.dataset.status==='alive'&& (liveNeighbors.length===2||liveNeighbors.length===3))
+    // console.log(element.dataset.status==='alive',liveNeighbors.length)
+    // console.log(element.dataset.status==='alive'&& (liveNeighbors.length===2||liveNeighbors.length===3))
     if(element.dataset.status==='alive'&& (liveNeighbors.length===2||liveNeighbors.length===3)){
       this.setAlive.push(element)
     }
@@ -193,64 +190,16 @@ var gameOfLife = {
     console.log('setDead',this.setDead)
     
     return [this.setAlive, this.setDead]
-
-    // console.log(neighborhood)
-    // Here is where you want to loop through all the cells
-    // on the board and determine, based on it's neighbors,
-    // whether the cell should be dead or alive in the next
-    // evolution of the game. 
-    //
-    // You need to:
-    // 1. Count alive neighbors for all cells
-    // 2. Set the next state of all cells based on their alive neighbors
- 
-    // let element =  document.getElementById(`${x}-${y}`)
-    // let aliveNighbors=[]
-    
-    // for(var col = x-1;col<=x+1;col++){
-    //   for(var row=y-1;row<=y+1;row++){
-
-    //       if(document.getElementById(`${col}-${row}`)){
-    //       let neighbor= document.getElementById(`${col}-${row}`)
-           
-    //       console.log('neighbor-----',neighbor)
-    //       console.log('status',neighbor.dataset.status)
-    //       if(neighbor!==element&&neighbor.dataset.status==='alive') aliveNighbors.push(neighbor)
-          
-    //     }
-    //   }
-    // }
-    // if (element.className==='alive') console.log('[]--->',element,aliveNighbors)
-  
-    // if(element.dataset.status==='alive'&&aliveNighbors.length!==2||3) {
-    //   // element.className='dead'
-    //   // element.dataset.status='dead'
-    //   this.setDead.push(element)
-    // }
-    // if(element.dataset.status==='dead'&&aliveNighbors.length===3){
-    //   // element.className='alive'
-    //   // element.dataset.status='alive'
-    //   this.setAlive.push(element)
-    // }
-    // console.log('--------------------------')
-    // console.log('SET ALIVE', this.setAlive)
-    // console.log('SET DEAD', this.setDead)
-    // this.setDead.forEach(element=>{
-    //   element.className='dead'
-    //   element.dataset.status='dead'
-    // })
-    // this.setAlive.forEach(element=>{
-    //   element.className='alive'
-    //   element.dataset.status='alive'
-    // })
-    // this.setDead=[]
-    // this.setAlive=[]
-
   },
 
   enableAutoPlay: function () {
     // Start Auto-Play by running the 'step' function
-    // automatically repeatedly every fixed time interval  
+    // automatically repeatedly every fixed time interval 
+    setInterval(()=>{
+      this.forEachCell(this.step)
+      this.applyStep()
+    }, .3)
+
   }
   
 };
