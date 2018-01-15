@@ -4,15 +4,11 @@
 //there is no reason to keep calculating it over and over.
 
 
-
-
-
-
 var gameOfLife = {
-  setAlive: [],
-  setDead: [],
-  width: 100, 
-  height: 100, // width and height dimensions of the board
+  // setAlive: [],
+  // setDead: [],
+  width: 150, 
+  height: 150, // width and height dimensions of the board
   stepInterval: null, // should be used to hold reference to an interval that is "playing" the game
 
   createAndShowBoard: function () {
@@ -134,8 +130,8 @@ var gameOfLife = {
       this.forEachCell(randomize)
     })
     document.getElementById('step_btn').addEventListener('click',()=>{
-      this.forEachCell(this.step)
-      this.applyStep()
+ 
+      this.step()
     })
     document.getElementById('play_btn').addEventListener('click',()=>
     this.enableAutoPlay())
@@ -165,52 +161,34 @@ var gameOfLife = {
         return neighborhood
     
   },
-  getLiveNeighbors(neighborhood){
-    console.log('CALCULATING LIVE NEIGHBORS!!!')
-    let liveNeighbors=neighborhood.filter(neighbor=>neighbor.dataset.status==='alive')
-    
-    if(liveNeighbors.length>0) console.log('Live Neighbors---',liveNeighbors)
-    return liveNeighbors
+ 
+  getNextState(element,x,y){
+    let liveNeighbors=element.neighborhood.filter(neighbor=>neighbor.dataset.status==='alive').length
+    console.log(liveNeighbors)
+
+    //if function reutrns true, that mean the cell will be alive on next iteration
+    if(element.dataset.status==='alive'){
+      return (liveNeighbors===2|| liveNeighbors===3)
+    }else{
+      return (liveNeighbors === 3)
+    }
   },
-  setUpNextStep(element,liveNeighbors){
-    // console.log(element.dataset.status==='alive',liveNeighbors.length)
-    // console.log(element.dataset.status==='alive'&& (liveNeighbors.length===2||liveNeighbors.length===3))
-    if(element.dataset.status==='alive'&& (liveNeighbors.length===2||liveNeighbors.length===3)){
-      this.setAlive.push(element)
-    }
-    if(element.dataset.status==='alive'&&liveNeighbors.length<2){
-      this.setDead.push(element)
-    }
-    if(element.dataset.status==='alive'&& liveNeighbors.length>3){
-      this.setDead.push(element)
-    }
-    if(element.dataset.status==='dead'&&liveNeighbors.length===3){
-      this.setAlive.push(element)
-    }
-    
-  },
-  applyStep(){
-    this.setAlive.forEach(element=>{
-      element.dataset.status='alive';
-      element.className='alive';
+  applyState(nextStateArr){
+    this.forEachCell((element,x,y)=>{
+      // here we convert true/flase into 'alive or 'dead'
+      let nextStatus = nextStateArr[x][y] ? 'alive' : 'dead';
+      element.className = nextStatus
+      element.dataset.status = nextStatus
     })
-    this.setDead.forEach(element=>{
-      element.dataset.status='dead';
-      element.className='dead';
-    })
-    this.setDead=[]
-    this.setAlive=[]
   },
-  
-  step: function (element,x,y) {
+  step: function () {
+    let nextState = new Array(this.width).fill('placeholder').map(el=>[])
+    this.forEachCell((element,x,y)=>{
+      nextState[x][y]=this.getNextState(element,x,y)
+    })
+
+    this.applyState(nextState)
    
-    // let element= document.getElementById(`${x}-${y}`)
-    let neighborhood=element.neighborhood
-  
-    let liveNeighbors = this.getLiveNeighbors(neighborhood)
-    this.setUpNextStep(element,liveNeighbors)
-    // console.log('setAlive',this.setAlive)
-    // console.log('setDead',this.setDead)
     
     return [this.setAlive, this.setDead]
   },
@@ -223,8 +201,7 @@ var gameOfLife = {
         return this.stopAutoPlay();
       }
       this.stepInterval = setInterval(()=>{
-        this.forEachCell(this.step)
-        this.applyStep()
+       this.step()
         console.log(this)
         console.log(this.stepInterval)
       }, 200)
@@ -239,3 +216,44 @@ var gameOfLife = {
 };
 
 gameOfLife.createAndShowBoard();
+
+
+
+
+
+ // getLiveNeighbors(neighborhood){
+  //   console.log('CALCULATING LIVE NEIGHBORS!!!')
+  //   let liveNeighbors=neighborhood.filter(neighbor=>neighbor.dataset.status==='alive')
+    
+  //   if(liveNeighbors.length>0) console.log('Live Neighbors---',liveNeighbors)
+  //   return liveNeighbors
+  // },
+  // setUpNextStep(element,liveNeighbors){
+  //   // console.log(element.dataset.status==='alive',liveNeighbors.length)
+  //   // console.log(element.dataset.status==='alive'&& (liveNeighbors.length===2||liveNeighbors.length===3))
+  //   if(element.dataset.status==='alive'&& (liveNeighbors.length===2||liveNeighbors.length===3)){
+  //     this.setAlive.push(element)
+  //   }
+  //   if(element.dataset.status==='alive'&&liveNeighbors.length<2){
+  //     this.setDead.push(element)
+  //   }
+  //   if(element.dataset.status==='alive'&& liveNeighbors.length>3){
+  //     this.setDead.push(element)
+  //   }
+  //   if(element.dataset.status==='dead'&&liveNeighbors.length===3){
+  //     this.setAlive.push(element)
+  //   }
+    
+  // },
+  // applyStep(){
+  //   this.setAlive.forEach(element=>{
+  //     element.dataset.status='alive';
+  //     element.className='alive';
+  //   })
+  //   this.setDead.forEach(element=>{
+  //     element.dataset.status='dead';
+  //     element.className='dead';
+  //   })
+  //   this.setDead=[]
+  //   this.setAlive=[]
+  // },
