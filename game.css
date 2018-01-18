@@ -8,7 +8,15 @@ h1, h2 {
 #board{
   margin: 0 auto;
 }
-
+#tableSetup{
+  text-align: center;
+}
+input {
+  width: 3em;
+}
+#submit{
+  width: 4em;
+}
 #board td{
   border: 1px solid #ddd;
   width: 18px;

@@ -18,6 +18,14 @@
     <button id='reset_btn' class='btn btn-warning'>Reset Random</button>
     <button id='clear_btn' class='btn btn-info'>Clear</button>
   </div>
+
+  <form id='tableSetup' onsubmit="return gameOfLife.checkForOldBoard(event)">
+    Width
+    <input type="number" name="rowInput" size="4" value='20' >
+    Height
+    <input type="number" name="colInput" size="4" value ='20'>
+    <input id="submit" type = "submit" value="submit" width="5em">
+  </form>
   
   <br><br>
 
@@ -28,6 +36,7 @@
   </footer>
   
   <script src="game.js"></script>
+  <!-- <script src="oldGamejsSnapshot.js"></script> -->
   
 </body>
 </html>

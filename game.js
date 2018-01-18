@@ -1,18 +1,38 @@
-// import { clearInterval } from "timers";
-
-//optomize this a bit. look into attaching the neighborhood property when node is created and then refere to it. 
-//there is no reason to keep calculating it over and over.
 
 
 var gameOfLife = {
-  // setAlive: [],
-  // setDead: [],
-  width: 150, 
-  height: 150, // width and height dimensions of the board
+
+  width:  null,
+  height: null, // width and height dimensions of the board
   stepInterval: null, // should be used to hold reference to an interval that is "playing" the game
+  
+  checkForOldBoard(evt){
+    evt.preventDefault()
+    // its important to save nodes as, and refer to them as variables.
+    var oldTable = document.getElementById('board')
+    if(oldTable.children.length) {
+      console.log('old childen',oldTable.children)
+     let oldBody=oldTable.firstChild
+     
+     let parent = oldBody.parentNode
+     console.log('oldbody parent',parent)
+     parent.removeChild(oldBody)
+     this.createAndShowBoard()
+    }
+    else {
+      console.log('No old borad found')
+      this.addButtonListeners()
+      this.createAndShowBoard()
+    }
+  },
+  
 
   createAndShowBoard: function () {
     
+    console.log('stepInterval', this.stepInterval)
+    this.width =document.getElementById('tableSetup').elements.namedItem('rowInput').value
+    this.height= document.getElementById('tableSetup').elements.namedItem('colInput').value
+    console.log(this.height)
     // create <table> element
     var goltable = document.createElement("tbody");
     
@@ -90,11 +110,28 @@ var gameOfLife = {
       element.addEventListener('click',onCellClick)
       // console.log('THIS ===',this)
     }
+   
+    
+
+    // var cell00 = document.getElementById('0-0');
+    // cell00.addEventListener('click', onCellClick);
+
+   
+    //BOARD SET-UP FUNCTIONS
+    this.forEachCell(addListeners)
+    this.forEachCell(this.getNeighborhood)
+
+     //BINDINGS
+    this.step=this.step.bind(this)
+   
+  },
+
+  addButtonListeners(){
     var clearAllCells = function(element,x,y){
-    //  let element= document.getElementById(`${x}-${y}`)
-      element.className='dead'
-      element.dataset.status='dead'
-      console.log('FUCKING CLEARED')
+        //  let element= document.getElementById(`${x}-${y}`)
+          element.className='dead'
+          element.dataset.status='dead'
+          console.log('FUCKING CLEARED')
     }
     var randomize=function(element,x,y){
       let num = Math.floor(Math.random()*2)
@@ -107,18 +144,7 @@ var gameOfLife = {
       }
     } 
 
-    // var cell00 = document.getElementById('0-0');
-    // cell00.addEventListener('click', onCellClick);
 
-   
-    //BOARD SET-UP FUNCTIONS
-    this.forEachCell(addListeners)
-    this.forEachCell(this.getNeighborhood)
-
-     //BINDINGS
-    this.step=this.step.bind(this)
-
-    //Buttons 
     document.getElementById('clear_btn').addEventListener('click',()=>{
       this.stopAutoPlay()
       this.forEachCell(clearAllCells)
@@ -133,17 +159,15 @@ var gameOfLife = {
  
       this.step()
     })
-    document.getElementById('play_btn').addEventListener('click',()=>
-    this.enableAutoPlay())
-
+    document.getElementById('play_btn').addEventListener('click',()=>{
+     
+      this.enableAutoPlay()
+    })
   },
-
   
   getNeighborhood: function(element,x,y){
     console.log('CALCULATING NEIGHBORHOOD!!!')
     let neighborhood=[]
-      // let element=document.getElementById(`${x}-${y}`)
-      // console.log(element)
       for(var col = x-1;col<=x+1;col++){
         for(var row=y-1;row<=y+1;row++){
           // console.log(col, row)
@@ -153,18 +177,14 @@ var gameOfLife = {
           }
         }
       }
-       
-        // console.log(neighborhood)
-        
+
         element.neighborhood=neighborhood
-       
         return neighborhood
-    
   },
  
   getNextState(element,x,y){
     let liveNeighbors=element.neighborhood.filter(neighbor=>neighbor.dataset.status==='alive').length
-    console.log(liveNeighbors)
+    // console.log(liveNeighbors)
 
     //if function reutrns true, that mean the cell will be alive on next iteration
     if(element.dataset.status==='alive'){
@@ -182,78 +202,38 @@ var gameOfLife = {
     })
   },
   step: function () {
-    let nextState = new Array(this.width).fill('placeholder').map(el=>[])
+    console.log(this.width)
+    let nextState = new Array(+this.width).fill('placeholder').map(el=>[])
+    console.log('NextState',nextState)
     this.forEachCell((element,x,y)=>{
+      // console.log(element)
       nextState[x][y]=this.getNextState(element,x,y)
     })
 
     this.applyState(nextState)
-   
-    
-    return [this.setAlive, this.setDead]
   },
 
   enableAutoPlay: function () {
     // Start Auto-Play by running the 'step' function
     // automatically repeatedly every fixed time interval 
-
+    console.log('FIRST STEP INTERVLA IN AUTOPLAY',this.stepInterval)
       if(this.stepInterval){
         return this.stopAutoPlay();
-      }
+      }else{
       this.stepInterval = setInterval(()=>{
        this.step()
         console.log(this)
         console.log(this.stepInterval)
       }, 200)
-   
+    }
   },
   
   stopAutoPlay: function(){
+    console.log('step interval',this.stepInterval)
     clearInterval(this.stepInterval)
     this.stepInterval=null
+    console.log('stepInterVal set to null',this.stepInterval)
     console.log('STOP AUTOPLAY',this)
+
   }
 };
-
-gameOfLife.createAndShowBoard();
-
-
-
-
-
- // getLiveNeighbors(neighborhood){
-  //   console.log('CALCULATING LIVE NEIGHBORS!!!')
-  //   let liveNeighbors=neighborhood.filter(neighbor=>neighbor.dataset.status==='alive')
-    
-  //   if(liveNeighbors.length>0) console.log('Live Neighbors---',liveNeighbors)
-  //   return liveNeighbors
-  // },
-  // setUpNextStep(element,liveNeighbors){
-  //   // console.log(element.dataset.status==='alive',liveNeighbors.length)
-  //   // console.log(element.dataset.status==='alive'&& (liveNeighbors.length===2||liveNeighbors.length===3))
-  //   if(element.dataset.status==='alive'&& (liveNeighbors.length===2||liveNeighbors.length===3)){
-  //     this.setAlive.push(element)
-  //   }
-  //   if(element.dataset.status==='alive'&&liveNeighbors.length<2){
-  //     this.setDead.push(element)
-  //   }
-  //   if(element.dataset.status==='alive'&& liveNeighbors.length>3){
-  //     this.setDead.push(element)
-  //   }
-  //   if(element.dataset.status==='dead'&&liveNeighbors.length===3){
-  //     this.setAlive.push(element)
-  //   }
-    
-  // },
-  // applyStep(){
-  //   this.setAlive.forEach(element=>{
-  //     element.dataset.status='alive';
-  //     element.className='alive';
-  //   })
-  //   this.setDead.forEach(element=>{
-  //     element.dataset.status='dead';
-  //     element.className='dead';
-  //   })
-  //   this.setDead=[]
-  //   this.setAlive=[]
-  // },
