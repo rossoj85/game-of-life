@@ -8,6 +8,19 @@ var gameOfLife = {
   
   checkForOldBoard(evt){
     evt.preventDefault()
+    this.width =document.getElementById('tableSetup').elements.namedItem('rowInput').value
+    this.height= document.getElementById('tableSetup').elements.namedItem('colInput').value
+   
+    if(this.width>120 || this.height>120){
+      //  console.log('NUMBERS TOO HIGH')
+      // let form= document.getElementById('tableSetup')
+      // console.log('form',form)
+      // let warning = document.createElement("p")
+      // warning.innerHTML = 'Numbers must be no greater than 100'
+      // form.appendChild(warning)
+      document.getElementById('submit').disable=true
+      return;
+    }
     // its important to save nodes as, and refer to them as variables.
     var oldTable = document.getElementById('board')
     if(oldTable.children.length) {
@@ -28,8 +41,6 @@ var gameOfLife = {
   
 
   createAndShowBoard: function () {
-    
-    console.log('stepInterval', this.stepInterval)
     this.width =document.getElementById('tableSetup').elements.namedItem('rowInput').value
     this.height= document.getElementById('tableSetup').elements.namedItem('colInput').value
     console.log(this.height)
